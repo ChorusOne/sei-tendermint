@@ -260,6 +260,7 @@ func NewClientFromTrustedStore(
 
 // restoreTrustedLightBlock loads the latest trusted light block from the store
 func (c *Client) restoreTrustedLightBlock() error {
+	c.logger.Error("### client::restoreTrustedLightBlock: restoring trusted light block")
 	lastHeight, err := c.trustedStore.LastLightBlockHeight()
 	if err != nil {
 		return fmt.Errorf("can't get last trusted light block height: %w", err)
@@ -268,6 +269,7 @@ func (c *Client) restoreTrustedLightBlock() error {
 		return errors.New("trusted store is empty")
 	}
 
+	c.logger.Error("### client::restoreTrustedLightBlock: restoring trusted light block", "height", lastHeight)
 	trustedBlock, err := c.trustedStore.LightBlock(lastHeight)
 	if err != nil {
 		return fmt.Errorf("can't get last trusted light block: %w", err)
@@ -323,6 +325,7 @@ func (c *Client) TrustedLightBlock(height int64) (*types.LightBlock, error) {
 	if err != nil {
 		return nil, err
 	}
+	c.logger.Error("### client::TrustedLightBlockrestoring: return c.trustedStore.LightBlock(height)", "height", height)
 	return c.trustedStore.LightBlock(height)
 }
 
@@ -504,6 +507,7 @@ func (c *Client) verifyLightBlock(ctx context.Context, newLightBlock *types.Ligh
 	// Verifying backwards
 	case newLightBlock.Height < firstBlockHeight:
 		var firstBlock *types.LightBlock
+		c.logger.Error("client::verifyLightBlock:", "firstBlockHeight", firstBlockHeight)
 		firstBlock, err = c.trustedStore.LightBlock(firstBlockHeight)
 		if err != nil {
 			return fmt.Errorf("can't get first light block: %w", err)

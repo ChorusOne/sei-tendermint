@@ -489,6 +489,7 @@ func (r *Reactor) backfill(
 			for {
 				select {
 				case <-ctx.Done():
+					r.logger.Error("### statesync/reactor::Reactor::backfill: ctx.Done()")
 					return
 				case height := <-queue.nextHeight():
 					// pop the next peer of the list to send a request to
