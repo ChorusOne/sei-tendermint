@@ -934,6 +934,7 @@ func (c *Client) lightBlockFromPrimary(ctx context.Context, height int64) (*type
 		return nil, err
 
 	case provider.ErrNoResponse, provider.ErrLightBlockNotFound, provider.ErrHeightTooHigh:
+		fmt.Printf("### client::lightBlockFromPrimary: provider.ErrNoResponse, provider.ErrLightBlockNotFound, provider.ErrHeightTooHigh: %s\n", err)
 		// we find a new witness to replace the primary
 		c.logger.Info("error from light block request from primary, replacing...",
 			"error", err, "height", height, "primary", c.primary)
