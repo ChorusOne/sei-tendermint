@@ -155,6 +155,7 @@ func (p *http) ReportEvidence(ctx context.Context, ev types.Evidence) error {
 }
 
 func (p *http) validatorSet(ctx context.Context, height *int64) (*types.ValidatorSet, error) {
+	fmt.Printf("### http::validatorSet: (start)\n")
 	// Since the malicious node could report a massive number of pages, making us
 	// spend a considerable time iterating, we restrict the number of pages here.
 	// => 10000 validators max
@@ -209,8 +210,11 @@ func (p *http) validatorSet(ctx context.Context, height *int64) (*types.Validato
 				default:
 					// check if the error stems from the context
 					if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+						fmt.Printf("### http::validatorSet: Canceled or DeadlineExceeded: %s\n", err)
 						return nil, err
 					}
+
+					fmt.Printf("### http::validatorSet: provider.ErrUnreliableProvider: %s\n", e)
 
 					// If we don't know the error then by default we return an unreliable provider error and
 					// terminate the connection with the peer.
@@ -235,6 +239,7 @@ func (p *http) validatorSet(ctx context.Context, height *int64) (*types.Validato
 }
 
 func (p *http) signedHeader(ctx context.Context, height *int64) (*types.SignedHeader, error) {
+	fmt.Printf("### http::signedHeader: (start)\n")
 	// create a for loop to control retries. If p.maxRetryAttempts
 	// is negative we will keep repeating.
 	for attempt := uint16(0); attempt != p.maxRetryAttempts+1; attempt++ {
@@ -266,8 +271,11 @@ func (p *http) signedHeader(ctx context.Context, height *int64) (*types.SignedHe
 		default:
 			// check if the error stems from the context
 			if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+				fmt.Printf("### http::signedHeader: Canceled or DeadlineExceeded: %s\n", err)
 				return nil, err
 			}
+
+			fmt.Printf("### http::signedHeader: provider.ErrUnreliableProvider: %s\n", e)
 
 			// If we don't know the error then by default we return an unreliable provider error and
 			// terminate the connection with the peer.

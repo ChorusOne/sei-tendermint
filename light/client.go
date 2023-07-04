@@ -940,6 +940,7 @@ func (c *Client) lightBlockFromPrimary(ctx context.Context, height int64) (*type
 		return c.findNewPrimary(ctx, height, false)
 
 	default:
+		fmt.Printf("### client::lightBlockFromPrimary: default for: %s\n", err)
 		// The light client has most likely received either provider.ErrUnreliableProvider or provider.ErrBadLightBlock
 		// These errors mean that the light client should drop the primary and try with another provider instead
 		c.logger.Info("error from light block request from primary, removing...",
@@ -1059,6 +1060,7 @@ func (c *Client) findNewPrimary(ctx context.Context, height int64, remove bool) 
 
 		// process malevolent errors like ErrUnreliableProvider and ErrBadLightBlock by removing the witness
 		default:
+			fmt.Printf("### client::findNewPrimary: default for: %s\n", response.err)
 			lastError = response.err
 			c.logger.Error("error on light block request from witness, removing...",
 				"error", response.err, "primary", c.witnesses[response.witnessIndex])
