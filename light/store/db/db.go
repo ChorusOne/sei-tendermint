@@ -121,6 +121,7 @@ func (s *dbs) DeleteLightBlock(height int64) error {
 //
 // Safe for concurrent use by multiple goroutines.
 func (s *dbs) LightBlock(height int64) (*types.LightBlock, error) {
+	fmt.Printf("### light/db::LightBlock: height: %v\n", height)
 	if height <= 0 {
 		panic("negative or zero height")
 	}
@@ -130,6 +131,7 @@ func (s *dbs) LightBlock(height int64) (*types.LightBlock, error) {
 		panic(err)
 	}
 	if len(bz) == 0 {
+		fmt.Printf("### light/db::LightBlock: len(bz) == 0: return ErrLightBlockNotFound\n")
 		return nil, store.ErrLightBlockNotFound
 	}
 
