@@ -286,12 +286,17 @@ func (p *http) signedHeader(ctx context.Context, height *int64) (*types.SignedHe
 }
 
 func (p *http) noResponse() error {
+	fmt.Printf("### http::noResponse: (start)\n")
+	fmt.Printf("### http::noResponse: noResponseThreshold: %v\n", p.noResponseThreshold)
+	fmt.Printf("### http::noResponse: noResponseCount before: %v\n", p.noResponseCount)
 	p.noResponseCount++
+	fmt.Printf("### http::noResponse: noResponseCount  after: %v\n", p.noResponseCount)
 	if p.noResponseCount > p.noResponseThreshold {
 		return provider.ErrUnreliableProvider{
 			Reason: fmt.Errorf("failed to respond after %d attempts", p.noResponseCount),
 		}
 	}
+	fmt.Printf("### http::noResponse: return provider.ErrNoResponse\n")
 	return provider.ErrNoResponse
 }
 

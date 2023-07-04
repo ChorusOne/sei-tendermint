@@ -120,6 +120,7 @@ func (c *Client) compareNewHeaderWithWitness(ctx context.Context, errc chan erro
 	// the witness hasn't been helpful in comparing headers, we mark the response and continue
 	// comparing with the rest of the witnesses
 	case provider.ErrNoResponse, provider.ErrLightBlockNotFound, context.DeadlineExceeded, context.Canceled:
+		fmt.Printf("### detector::compareNewHeaderWithWitness: one of provider.ErrNoResponse, provider.ErrLightBlockNotFound, context.DeadlineExceeded, context.Canceled: %v\n", err)
 		errc <- err
 		return
 
