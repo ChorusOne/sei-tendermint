@@ -493,17 +493,26 @@ func (r *Reactor) backfill(
 				case height := <-queue.nextHeight():
 					// pop the next peer of the list to send a request to
 					peer := r.peers.Pop(ctx)
+					fmt.Printf("### statesync/reactor::Reactor::backfill: height: %v, peer: %v\n", height, peer)
 					r.logger.Debug("fetching next block", "height", height, "peer", peer)
+					r.logger.Error("### fetching next block", "height", height, "peer", peer)
+
+					r.logger.Error("### backfill", "lightBlockResponseTimeout", lightBlockResponseTimeout)
 					subCtx, cancel := context.WithTimeout(ctxWithCancel, lightBlockResponseTimeout)
 					defer cancel()
 					lb, err := func() (*types.LightBlock, error) {
 						defer cancel()
 						// request the light block with a timeout
+						r.logger.Error("### statesync/reactor::Reactor::backfill ################################## BACKFILL")
+						fmt.Printf("### statesync/reactor::Reactor::backfill ##################################\n")
+						fmt.Printf("### statesync/reactor::Reactor::backfill MAJOR BACKFILL\n")
+						fmt.Printf("### statesync/reactor::Reactor::backfill ##################################\n")
 						return r.dispatcher.LightBlock(subCtx, height, peer)
 					}()
 					// once the peer has returned a value, add it back to the peer list to be used again
 					r.peers.Append(peer)
 					if errors.Is(err, context.Canceled) {
+						fmt.Printf("### statesync/reactor::Reactor::backfill: context.Canceled\n")
 						return
 					}
 					if err != nil {
