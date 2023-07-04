@@ -47,9 +47,11 @@ func NewDispatcher(requestChannel *p2p.Channel, lightBlockMsgCreator func(uint64
 // tracking, the call and waiting for the reactor to pass back the response. A nil
 // LightBlock response is used to signal that the peer doesn't have the requested LightBlock.
 func (d *Dispatcher) LightBlock(ctx context.Context, height int64, peer types.NodeID) (*types.LightBlock, error) {
+	fmt.Printf("### dispatcher::Dispatcher::LightBlock: (start) height: %v\n", height)
 	// dispatch the request to the peer
 	callCh, err := d.dispatch(ctx, peer, height)
 	if err != nil {
+		fmt.Printf("### dispatcher::Dispatcher::LightBlock: err != nil\n")
 		return nil, err
 	}
 
@@ -66,9 +68,11 @@ func (d *Dispatcher) LightBlock(ctx context.Context, height int64, peer types.No
 	// wait for a response, cancel or timeout
 	select {
 	case resp := <-callCh:
+		fmt.Printf("### dispatcher::Dispatcher::LightBlock: resp <- callCh\n")
 		return resp, nil
 
 	case <-ctx.Done():
+		fmt.Printf("### dispatcher::Dispatcher::LightBlock: ctx.Done\n")
 		return nil, ctx.Err()
 	}
 }
@@ -185,6 +189,7 @@ func NewBlockProvider(peer types.NodeID, chainID string, dispatcher *Dispatcher)
 // LightBlock fetches a light block from the peer at a specified height returning either a
 // light block or an appropriate error.
 func (p *BlockProvider) LightBlock(ctx context.Context, height int64) (*types.LightBlock, error) {
+	fmt.Printf("### dispatcher::BlockProvider::LightBlock: (start) height: %v\n", height)
 	lb, err := p.dispatcher.LightBlock(ctx, height, p.peer)
 	switch err {
 	case nil:
@@ -196,6 +201,7 @@ func (p *BlockProvider) LightBlock(ctx context.Context, height int64) (*types.Li
 	case ErrPeerAlreadyBusy:
 		return nil, provider.ErrLightBlockNotFound
 	default:
+		fmt.Printf("### dispatcher::BlockProvider::LightBlock: default: return ErrUnreliableProvider\n")
 		return nil, provider.ErrUnreliableProvider{Reason: err}
 	}
 

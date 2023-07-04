@@ -951,6 +951,7 @@ func (c *Client) lightBlockFromPrimary(ctx context.Context, height int64) (*type
 }
 
 func (c *Client) getLightBlock(ctx context.Context, p provider.Provider, height int64) (*types.LightBlock, error) {
+	fmt.Printf("### client::getLightBlockgetLightBlock: (start) height: %v\n", height)
 	l, err := p.LightBlock(ctx, height)
 	if ctx.Err() != nil {
 		return nil, provider.ErrNoResponse
