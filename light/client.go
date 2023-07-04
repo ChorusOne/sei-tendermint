@@ -394,10 +394,13 @@ func (c *Client) Update(ctx context.Context, now time.Time) (*types.LightBlock, 
 //
 // It will replace the primary provider if an error from a request to the provider occurs
 func (c *Client) VerifyLightBlockAtHeight(ctx context.Context, height int64, now time.Time) (*types.LightBlock, error) {
+	c.logger.Error("### client::VerifyLightBlockAtHeight: ctx", "height", height)
+
 	if height <= 0 {
 		return nil, errors.New("negative or zero height")
 	}
 
+	c.logger.Error("### client::VerifyLightBlockAtHeight: before c.TrustedLightBlock(height)")
 	// Check if the light block is already verified.
 	h, err := c.TrustedLightBlock(height)
 	if err == nil {
@@ -406,12 +409,14 @@ func (c *Client) VerifyLightBlockAtHeight(ctx context.Context, height int64, now
 		return h, nil
 	}
 
+	c.logger.Error("### client::VerifyLightBlockAtHeight: before c.lightBlockFromPrimary(ctx, height)")
 	// Request the light block from primary
 	l, err := c.lightBlockFromPrimary(ctx, height)
 	if err != nil {
 		return nil, err
 	}
 
+	c.logger.Error("### client::VerifyLightBlockAtHeight: before c.verifyLightBlock(ctx, lightblock, time)")
 	return l, c.verifyLightBlock(ctx, l, now)
 }
 
@@ -452,6 +457,7 @@ func (c *Client) VerifyHeader(ctx context.Context, newHeader *types.Header, now 
 		return errors.New("negative or zero height")
 	}
 
+	c.logger.Error("### client::VerifyHeader: before c.TrustedLightBlock(newHeader.Height)", "height", newHeader.Height)
 	// Check if newHeader already verified.
 	l, err := c.TrustedLightBlock(newHeader.Height)
 	if err == nil {
@@ -464,6 +470,7 @@ func (c *Client) VerifyHeader(ctx context.Context, newHeader *types.Header, now 
 		return nil
 	}
 
+	c.logger.Error("### client::VerifyHeader: before c.lightBlockFromPrimary(ctx, newHeader.Height)", "height", newHeader.Height)
 	// Request the header and the vals.
 	l, err = c.lightBlockFromPrimary(ctx, newHeader.Height)
 	if err != nil {
@@ -474,6 +481,7 @@ func (c *Client) VerifyHeader(ctx context.Context, newHeader *types.Header, now 
 		return fmt.Errorf("header from primary %X does not match newHeader %X", l.Hash(), newHeader.Hash())
 	}
 
+	c.logger.Error("### client::VerifyHeader:return c.verifyLightBlock(ctx, l, now)")
 	return c.verifyLightBlock(ctx, l, now)
 }
 
