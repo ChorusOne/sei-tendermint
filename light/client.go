@@ -985,7 +985,12 @@ func (c *Client) lightBlockFromPrimary(ctx context.Context, height int64) (*type
 }
 
 func (c *Client) getLightBlock(ctx context.Context, p provider.Provider, height int64) (*types.LightBlock, error) {
-	fmt.Printf("### client::getLightBlockgetLightBlock: (start) height: %v\n", height)
+	fmt.Printf("### client::getLightBlock: (start) height: %v\n", height)
+	tNow := time.Now()
+	ctxTime, ctxOk := ctx.Deadline()
+	tDiff := ctxTime.Sub(tNow)
+	c.logger.Error("### client::verifySequential: ctx.Deadline()", "xtime", ctxTime, "ok", ctxOk, "timeDiff", tDiff)
+
 	l, err := p.LightBlock(ctx, height)
 	if ctx.Err() != nil {
 		return nil, provider.ErrNoResponse
