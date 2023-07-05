@@ -133,6 +133,11 @@ func (s *syncer) SyncAny(
 	discoveryTime time.Duration,
 	requestSnapshots func() error,
 ) (sm.State, *types.Commit, error) {
+	tNow := time.Now()
+	ctxTime, ctxOk := ctx.Deadline()
+	tDiff := ctxTime.Sub(tNow)
+	fmt.Println("### statesync/syncer::SyncAny: (start) ctx", "xtime", ctxTime, "ok", ctxOk, "timeDiff", tDiff)
+
 	if discoveryTime != 0 && discoveryTime < minimumDiscoveryTime {
 		discoveryTime = minimumDiscoveryTime
 	}
@@ -153,6 +158,8 @@ func (s *syncer) SyncAny(
 		err      error
 	)
 	for {
+		fmt.Println("### statesync/syncer::SyncAny: (loop)")
+
 		// If not nil, we're going to retry restoration of the same snapshot.
 		if snapshot == nil {
 			snapshot = s.snapshots.Best()
@@ -177,6 +184,12 @@ func (s *syncer) SyncAny(
 		s.processingSnapshot = snapshot
 		s.metrics.SnapshotChunkTotal.Set(float64(snapshot.Chunks))
 		s.logger.Info(fmt.Sprintf("Going to start state sync with the picked snapshot height %d", snapshot.Height))
+
+		tNow := time.Now()
+		ctxTime, ctxOk := ctx.Deadline()
+		tDiff := ctxTime.Sub(tNow)
+		fmt.Println("### statesync/syncer::SyncAny: (loop) before .Sync: ctx", "xtime", ctxTime, "ok", ctxOk, "timeDiff", tDiff)
+
 		newState, commit, err := s.Sync(ctx, snapshot, chunks)
 		switch {
 		case err == nil:
@@ -233,6 +246,11 @@ func (s *syncer) SyncAny(
 // Sync executes a sync for a specific snapshot, returning the latest state and block commit which
 // the caller must use to bootstrap the node.
 func (s *syncer) Sync(ctx context.Context, snapshot *snapshot, chunks *chunkQueue) (sm.State, *types.Commit, error) {
+	tNow := time.Now()
+	ctxTime, ctxOk := ctx.Deadline()
+	tDiff := ctxTime.Sub(tNow)
+	fmt.Println("### statesync/syncer::Sync: (start) ctx", "xtime", ctxTime, "ok", ctxOk, "timeDiff", tDiff)
+
 	s.mtx.Lock()
 	if s.chunks != nil {
 		s.mtx.Unlock()
@@ -250,6 +268,7 @@ func (s *syncer) Sync(ctx context.Context, snapshot *snapshot, chunks *chunkQueu
 	defer hcancel()
 
 	// Fetch the app hash corresponding to the snapshot
+	fmt.Println("### statesync/syncer::Sync: before stateProvider.AppHash")
 	appHash, err := s.stateProvider.AppHash(hctx, snapshot.Height)
 	if err != nil {
 		// check if the main context was triggered
