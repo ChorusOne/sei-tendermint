@@ -98,7 +98,7 @@ func (s *stateProviderRPC) verifyLightBlockAtHeight(ctx context.Context, height 
 	ctxTime, ctxOk := ctx.Deadline()
 	tDiff := ctxTime.Sub(tNow)
 	fmt.Println("### stateProviderRPC::verifyLightBlockAtHeight: earli ctx", "xtime", ctxTime, "ok", ctxOk, "timeDiff", tDiff)
-	fmt.Println("### stateProviderRPC::verifyLightBlockAtHeight: s.s.verifyLightBlockTimeout", s.verifyLightBlockTimeout)
+	fmt.Println("### stateProviderRPC::verifyLightBlockAtHeight: s.verifyLightBlockTimeout", s.verifyLightBlockTimeout)
 	ctx, cancel := context.WithTimeout(ctx, s.verifyLightBlockTimeout)
 	defer cancel()
 
@@ -265,13 +265,29 @@ func NewP2PStateProvider(
 }
 
 func (s *StateProviderP2P) verifyLightBlockAtHeight(ctx context.Context, height uint64, ts time.Time) (*types.LightBlock, error) {
+	tNow := time.Now()
+	ctxTime, ctxOk := ctx.Deadline()
+	tDiff := ctxTime.Sub(tNow)
+	fmt.Println("### StateProviderP2P::verifyLightBlockAtHeight: early ctx", "xtime", ctxTime, "ok", ctxOk, "timeDiff", tDiff)
+
 	ctx, cancel := context.WithTimeout(ctx, s.verifyLightBlockTimeout)
 	defer cancel()
+
+	tNow = time.Now()
+	ctxTime, ctxOk = ctx.Deadline()
+	tDiff = ctxTime.Sub(tNow)
+	fmt.Println("### StateProviderP2P::verifyLightBlockAtHeight: late ctx", "xtime", ctxTime, "ok", ctxOk, "timeDiff", tDiff)
+
 	return s.lc.VerifyLightBlockAtHeight(ctx, int64(height), ts)
 }
 
 // AppHash implements StateProvider.
 func (s *StateProviderP2P) AppHash(ctx context.Context, height uint64) ([]byte, error) {
+	tNow := time.Now()
+	ctxTime, ctxOk := ctx.Deadline()
+	tDiff := ctxTime.Sub(tNow)
+	fmt.Println("### StateProviderP2P::AppHash: (start) ctx", "xtime", ctxTime, "ok", ctxOk, "timeDiff", tDiff)
+
 	s.Lock()
 	defer s.Unlock()
 
@@ -293,6 +309,11 @@ func (s *StateProviderP2P) AppHash(ctx context.Context, height uint64) ([]byte, 
 
 // Commit implements StateProvider.
 func (s *StateProviderP2P) Commit(ctx context.Context, height uint64) (*types.Commit, error) {
+	tNow := time.Now()
+	ctxTime, ctxOk := ctx.Deadline()
+	tDiff := ctxTime.Sub(tNow)
+	fmt.Println("### StateProviderP2P::Commit: (start) ctx", "xtime", ctxTime, "ok", ctxOk, "timeDiff", tDiff)
+
 	s.Lock()
 	defer s.Unlock()
 	header, err := s.verifyLightBlockAtHeight(ctx, height, time.Now())
@@ -304,6 +325,11 @@ func (s *StateProviderP2P) Commit(ctx context.Context, height uint64) (*types.Co
 
 // State implements StateProvider.
 func (s *StateProviderP2P) State(ctx context.Context, height uint64) (sm.State, error) {
+	tNow := time.Now()
+	ctxTime, ctxOk := ctx.Deadline()
+	tDiff := ctxTime.Sub(tNow)
+	fmt.Println("### StateProviderP2P::State: (start) ctx", "xtime", ctxTime, "ok", ctxOk, "timeDiff", tDiff)
+
 	s.Lock()
 	defer s.Unlock()
 
