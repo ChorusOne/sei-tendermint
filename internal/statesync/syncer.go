@@ -264,7 +264,7 @@ func (s *syncer) Sync(ctx context.Context, snapshot *snapshot, chunks *chunkQueu
 		s.mtx.Unlock()
 	}()
 
-	hctx, hcancel := context.WithTimeout(ctx, 600*time.Second)
+	hctx, hcancel := context.WithTimeout(ctx, 30*time.Minute)
 	defer hcancel()
 
 	// Fetch the app hash corresponding to the snapshot
