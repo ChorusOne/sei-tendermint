@@ -451,7 +451,7 @@ func (c *Client) VerifyLightBlockAtHeight(ctx context.Context, height int64, now
 // restart.
 func (c *Client) VerifyHeader(ctx context.Context, newHeader *types.Header, now time.Time) error {
 	ctxTime, ctxOk := ctx.Deadline()
-	c.logger.Error("### client::VerifyHeader: ctx.Deadline()", "time", ctxTime, "ok", ctxOk)
+	c.logger.Error("### client::VerifyHeader: ctx.Deadline()", "xtime", ctxTime, "ok", ctxOk)
 	if newHeader == nil {
 		return errors.New("nil header")
 	}
@@ -473,7 +473,7 @@ func (c *Client) VerifyHeader(ctx context.Context, newHeader *types.Header, now 
 	}
 
 	ctxTime, ctxOk = ctx.Deadline()
-	c.logger.Error("### client::VerifyHeader: ctx.Deadline()", "time", ctxTime, "ok", ctxOk)
+	c.logger.Error("### client::VerifyHeader: ctx.Deadline()", "xtime", ctxTime, "ok", ctxOk)
 
 	c.logger.Error("### client::VerifyHeader: before c.lightBlockFromPrimary(ctx, newHeader.Height)", "height", newHeader.Height)
 	// Request the header and the vals.
@@ -493,7 +493,7 @@ func (c *Client) VerifyHeader(ctx context.Context, newHeader *types.Header, now 
 func (c *Client) verifyLightBlock(ctx context.Context, newLightBlock *types.LightBlock, now time.Time) error {
 	c.logger.Info("### client::verifyLightBlock (start):", "height", newLightBlock.Height, "hash", newLightBlock.Hash())
 	ctxTime, ctxOk := ctx.Deadline()
-	c.logger.Error("### client::verifyLightBlock: ctx.Deadline()", "time", ctxTime, "ok", ctxOk)
+	c.logger.Error("### client::verifyLightBlock: ctx.Deadline()", "xtime", ctxTime, "ok", ctxOk)
 
 	var (
 		verifyFunc func(ctx context.Context, trusted *types.LightBlock, new *types.LightBlock, now time.Time) error
@@ -526,7 +526,7 @@ func (c *Client) verifyLightBlock(ctx context.Context, newLightBlock *types.Ligh
 		var firstBlock *types.LightBlock
 		c.logger.Error("### client::verifyLightBlock: case new < first", "newLightBlock_height", newLightBlock.Height, "firstBlockHeight", firstBlockHeight)
 		ctxTime, ctxOk := ctx.Deadline()
-		c.logger.Error("### client::verifyLightBlock: case new < first: ctx.Deadline()", "time", ctxTime, "ok", ctxOk)
+		c.logger.Error("### client::verifyLightBlock: case new < first: ctx.Deadline()", "xtime", ctxTime, "ok", ctxOk)
 		firstBlock, err = c.trustedStore.LightBlock(firstBlockHeight)
 		if err != nil {
 			return fmt.Errorf("can't get first light block: %w", err)
@@ -562,7 +562,7 @@ func (c *Client) verifySequential(
 
 	c.logger.Error("### client::verifySequential: start")
 	ctxTime, ctxOk := ctx.Deadline()
-	c.logger.Error("### client::verifySequential: ctx.Deadline()", "time", ctxTime, "ok", ctxOk)
+	c.logger.Error("### client::verifySequential: ctx.Deadline()", "xtime", ctxTime, "ok", ctxOk)
 
 	var (
 		verifiedBlock = trustedBlock
@@ -743,7 +743,7 @@ func (c *Client) verifySkippingAgainstPrimary(
 
 	c.logger.Error("### client::verifySkippingAgainstPrimary: (start)")
 	ctxTime, ctxOk := ctx.Deadline()
-	c.logger.Error("### client::verifySequential: ctx.Deadline()", "time", ctxTime, "ok", ctxOk)
+	c.logger.Error("### client::verifySequential: ctx.Deadline()", "xtime", ctxTime, "ok", ctxOk)
 
 	trace, err := c.verifySkipping(ctx, c.primary, trustedBlock, newLightBlock, now)
 	if err == nil {
