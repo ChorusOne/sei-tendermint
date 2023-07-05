@@ -932,7 +932,7 @@ func DefaultStateSyncConfig() *StateSyncConfig {
 		Fetchers:                4,
 		BackfillBlocks:          0,
 		BackfillDuration:        0 * time.Second,
-		VerifyLightBlockTimeout: 600 * time.Second,
+		VerifyLightBlockTimeout: 40 * time.Minute,
 	}
 }
 
