@@ -26,6 +26,8 @@ import (
 // If there are no conflictinge headers, the light client deems the verified target header
 // trusted and saves it to the trusted store.
 func (c *Client) detectDivergence(ctx context.Context, primaryTrace []*types.LightBlock, now time.Time) error {
+	c.logger.Error("### client::detectDivergence: (start)")
+
 	if primaryTrace == nil || len(primaryTrace) < 2 {
 		return errors.New("nil or single block primary trace")
 	}

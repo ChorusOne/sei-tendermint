@@ -450,6 +450,8 @@ func (c *Client) VerifyLightBlockAtHeight(ctx context.Context, height int64, now
 // verification then the provider will be replaced by another and the process will
 // restart.
 func (c *Client) VerifyHeader(ctx context.Context, newHeader *types.Header, now time.Time) error {
+	ctxTime, ctxOk := ctx.Deadline()
+	c.logger.Error("### client::VerifyHeader: ctx.Deadline()", "time", ctxTime, "ok", ctxOk)
 	if newHeader == nil {
 		return errors.New("nil header")
 	}
@@ -470,6 +472,9 @@ func (c *Client) VerifyHeader(ctx context.Context, newHeader *types.Header, now 
 		return nil
 	}
 
+	ctxTime, ctxOk = ctx.Deadline()
+	c.logger.Error("### client::VerifyHeader: ctx.Deadline()", "time", ctxTime, "ok", ctxOk)
+
 	c.logger.Error("### client::VerifyHeader: before c.lightBlockFromPrimary(ctx, newHeader.Height)", "height", newHeader.Height)
 	// Request the header and the vals.
 	l, err = c.lightBlockFromPrimary(ctx, newHeader.Height)
@@ -486,7 +491,9 @@ func (c *Client) VerifyHeader(ctx context.Context, newHeader *types.Header, now 
 }
 
 func (c *Client) verifyLightBlock(ctx context.Context, newLightBlock *types.LightBlock, now time.Time) error {
-	c.logger.Info("verify light block", "height", newLightBlock.Height, "hash", newLightBlock.Hash())
+	c.logger.Info("### client::verifyLightBlock (start):", "height", newLightBlock.Height, "hash", newLightBlock.Hash())
+	ctxTime, ctxOk := ctx.Deadline()
+	c.logger.Error("### client::verifyLightBlock: ctx.Deadline()", "time", ctxTime, "ok", ctxOk)
 
 	var (
 		verifyFunc func(ctx context.Context, trusted *types.LightBlock, new *types.LightBlock, now time.Time) error
@@ -495,8 +502,10 @@ func (c *Client) verifyLightBlock(ctx context.Context, newLightBlock *types.Ligh
 
 	switch c.verificationMode {
 	case sequential:
+		c.logger.Error("### client::verifyLightBlock: verifyFunc = c.verifySequential")
 		verifyFunc = c.verifySequential
 	case skipping:
+		c.logger.Error("### client::verifyLightBlock: verifyFunc = c.verifySkippingAgainstPrimary")
 		verifyFunc = c.verifySkippingAgainstPrimary
 	default:
 		panic(fmt.Sprintf("Unknown verification mode: %b", c.verificationMode))
@@ -515,7 +524,9 @@ func (c *Client) verifyLightBlock(ctx context.Context, newLightBlock *types.Ligh
 	// Verifying backwards
 	case newLightBlock.Height < firstBlockHeight:
 		var firstBlock *types.LightBlock
-		c.logger.Error("client::verifyLightBlock:", "firstBlockHeight", firstBlockHeight)
+		c.logger.Error("### client::verifyLightBlock: case new < first", "newLightBlock_height", newLightBlock.Height, "firstBlockHeight", firstBlockHeight)
+		ctxTime, ctxOk := ctx.Deadline()
+		c.logger.Error("### client::verifyLightBlock: case new < first: ctx.Deadline()", "time", ctxTime, "ok", ctxOk)
 		firstBlock, err = c.trustedStore.LightBlock(firstBlockHeight)
 		if err != nil {
 			return fmt.Errorf("can't get first light block: %w", err)
@@ -548,6 +559,10 @@ func (c *Client) verifySequential(
 	trustedBlock *types.LightBlock,
 	newLightBlock *types.LightBlock,
 	now time.Time) error {
+
+	c.logger.Error("### client::verifySequential: start")
+	ctxTime, ctxOk := ctx.Deadline()
+	c.logger.Error("### client::verifySequential: ctx.Deadline()", "time", ctxTime, "ok", ctxOk)
 
 	var (
 		verifiedBlock = trustedBlock
@@ -643,6 +658,8 @@ func (c *Client) verifySkipping(
 	newLightBlock *types.LightBlock,
 	now time.Time) ([]*types.LightBlock, error) {
 
+	c.logger.Error("### client::verifySkipping: (start)")
+
 	var (
 		// The block cache is ordered in height from highest to lowest. We start
 		// with the newLightBlock and for any height requested in between we add
@@ -724,6 +741,10 @@ func (c *Client) verifySkippingAgainstPrimary(
 	newLightBlock *types.LightBlock,
 	now time.Time) error {
 
+	c.logger.Error("### client::verifySkippingAgainstPrimary: (start)")
+	ctxTime, ctxOk := ctx.Deadline()
+	c.logger.Error("### client::verifySequential: ctx.Deadline()", "time", ctxTime, "ok", ctxOk)
+
 	trace, err := c.verifySkipping(ctx, c.primary, trustedBlock, newLightBlock, now)
 	if err == nil {
 		// Success! Now compare the header with the witnesses to ensure it's not a fork.
@@ -765,6 +786,7 @@ func (c *Client) verifySkippingAgainstPrimary(
 	// context was canceled.
 	default:
 		if errors.Is(e.Reason, context.Canceled) || errors.Is(e.Reason, context.DeadlineExceeded) {
+			c.logger.Error("### client::verifySequential: errors.Is(e.Reason, context.Canceled) || errors.Is(e.Reason, context.DeadlineExceeded)", "err", e.Reason)
 			return e.Reason
 		}
 
