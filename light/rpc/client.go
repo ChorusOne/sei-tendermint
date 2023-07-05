@@ -622,9 +622,16 @@ func (c *Client) updateLightClientIfNeededTo(ctx context.Context, height *int64)
 		l   *types.LightBlock
 		err error
 	)
+
+	tNow := time.Now()
+	ctxTime, ctxOk := ctx.Deadline()
+	tDiff := ctxTime.Sub(tNow)
+	fmt.Println("### rpc/client::updateLightClientIfNeededTo: ctx", "xtime", ctxTime, "ok", ctxOk, "timeDiff", tDiff)
+
 	if height == nil {
 		l, err = c.lc.Update(ctx, time.Now())
 	} else {
+		fmt.Println("### rpc/client::updateLightClientIfNeededTo: before VerifyLightBlockAtHeight")
 		l, err = c.lc.VerifyLightBlockAtHeight(ctx, *height, time.Now())
 	}
 	if err != nil {

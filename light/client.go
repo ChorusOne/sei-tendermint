@@ -395,6 +395,10 @@ func (c *Client) Update(ctx context.Context, now time.Time) (*types.LightBlock, 
 // It will replace the primary provider if an error from a request to the provider occurs
 func (c *Client) VerifyLightBlockAtHeight(ctx context.Context, height int64, now time.Time) (*types.LightBlock, error) {
 	c.logger.Error("### client::VerifyLightBlockAtHeight: ctx", "height", height)
+	tNow := time.Now()
+	ctxTime, ctxOk := ctx.Deadline()
+	tDiff := ctxTime.Sub(tNow)
+	c.logger.Error("### client::VerifyLightBlockAtHeight: Deadline()", "xtime", ctxTime, "ok", ctxOk, "timeDiff", tDiff)
 
 	if height <= 0 {
 		return nil, errors.New("negative or zero height")
@@ -989,7 +993,7 @@ func (c *Client) getLightBlock(ctx context.Context, p provider.Provider, height 
 	tNow := time.Now()
 	ctxTime, ctxOk := ctx.Deadline()
 	tDiff := ctxTime.Sub(tNow)
-	c.logger.Error("### client::verifySequential: ctx.Deadline()", "xtime", ctxTime, "ok", ctxOk, "timeDiff", tDiff)
+	c.logger.Error("### client::getLightBlock: ctx.Deadline()", "xtime", ctxTime, "ok", ctxOk, "timeDiff", tDiff)
 
 	l, err := p.LightBlock(ctx, height)
 	if ctx.Err() != nil {

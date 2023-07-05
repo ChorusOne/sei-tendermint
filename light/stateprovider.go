@@ -94,8 +94,19 @@ func NewRPCStateProvider(
 }
 
 func (s *stateProviderRPC) verifyLightBlockAtHeight(ctx context.Context, height uint64, ts time.Time) (*types.LightBlock, error) {
+	tNow := time.Now()
+	ctxTime, ctxOk := ctx.Deadline()
+	tDiff := ctxTime.Sub(tNow)
+	fmt.Println("### stateProviderRPC::verifyLightBlockAtHeight: earli ctx", "xtime", ctxTime, "ok", ctxOk, "timeDiff", tDiff)
+	fmt.Println("### stateProviderRPC::verifyLightBlockAtHeight: s.s.verifyLightBlockTimeout", s.verifyLightBlockTimeout)
 	ctx, cancel := context.WithTimeout(ctx, s.verifyLightBlockTimeout)
 	defer cancel()
+
+	tNow = time.Now()
+	ctxTime, ctxOk = ctx.Deadline()
+	tDiff = ctxTime.Sub(tNow)
+	fmt.Println("### stateProviderRPC::verifyLightBlockAtHeight: late ctx", "xtime", ctxTime, "ok", ctxOk, "timeDiff", tDiff)
+
 	return s.lc.VerifyLightBlockAtHeight(ctx, int64(height), ts)
 }
 
