@@ -319,6 +319,14 @@ func (r *Reactor) OnStart(ctx context.Context) error {
 			return nil
 		}
 
+		r.logger.Error("### Reactor::OnStart: before NewRPCStateProvider:")
+		r.logger.Error("### Reactor::OnStart:    -", "chainID", chainID)
+		r.logger.Error("### Reactor::OnStart:    -", "initialHeight", initialHeight)
+		r.logger.Error("### Reactor::OnStart:    -", "verifyTimeout", r.cfg.VerifyLightBlockTimeout)
+		tNow := time.Now()
+		ctxTime, ctxOk := ctx.Deadline()
+		tDiff := ctxTime.Sub(tNow)
+		r.logger.Error("### Reactor::OnStart:    - ctx.Deadline()", "xtime", ctxTime, "ok", ctxOk, "timeDiff", tDiff)
 		stateProvider, err := light.NewRPCStateProvider(ctx, chainID, initialHeight, r.cfg.VerifyLightBlockTimeout, r.cfg.RPCServers, to, spLogger)
 		if err != nil {
 			return fmt.Errorf("failed to initialize RPC state provider: %w", err)
